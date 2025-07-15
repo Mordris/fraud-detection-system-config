@@ -1,0 +1,12 @@
+# A ConfigMap stores configuration data as key-value pairs.
+# Our application will read these as environment variables.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  # The name we will use to refer to this ConfigMap
+  name: payment-api-config
+data:
+  # The key is the environment variable name
+  # The value is the address of our Redpanda service inside Kubernetes
+  KAFKA_BROKER: "redpanda-0.redpanda.fraud-detection.svc.cluster.local:9093"
+  TRANSACTIONS_TOPIC: "transactions"

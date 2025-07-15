@@ -1,0 +1,15 @@
+# This Service exposes the JobManager's ports within the cluster.
+apiVersion: v1
+kind: Service
+metadata:
+  name: flink-jobmanager
+spec:
+  type: ClusterIP
+  selector:
+    app: flink
+    component: jobmanager
+  ports:
+    - name: rpc # The port TaskManagers use to talk to the JobManager
+      port: 6123
+    - name: webui # The port for the Flink Dashboard
+      port: 8081

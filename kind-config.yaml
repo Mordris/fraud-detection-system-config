@@ -1,0 +1,26 @@
+# This file defines the configuration for our local Kubernetes cluster.
+# We are creating a multi-node cluster to better simulate a real environment.
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  # The control-plane node runs the core Kubernetes components.
+  - role: control-plane
+    # This patch allows us to easily set up an Ingress controller later.
+    kubeadmConfigPatches:
+      - |
+        kind: InitConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "ingress-ready=true"
+    # This maps ports from your local machine (host) into the cluster.
+    # It will allow us to access services running in the cluster via http://localhost.
+    extraPortMappings:
+      - containerPort: 80
+        hostPort: 80
+        protocol: TCP
+      - containerPort: 443
+        hostPort: 443
+        protocol: TCP
+  # Worker nodes are where our applications will actually run.
+  - role: worker
+  - role: worker

@@ -1,0 +1,10 @@
+# This top-level Kustomization file includes all our component directories.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# List each component directory as a resource.
+# Kustomize will look for a kustomization.yaml file inside each of these.
+resources:
+  - ./alert-monitor
+  - ./payment-api
+  - ./flink

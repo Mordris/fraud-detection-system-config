@@ -1,0 +1,24 @@
+# This Deployment defines how to run our alert-monitor dashboard.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alert-monitor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alert-monitor
+  template:
+    metadata:
+      labels:
+        app: alert-monitor
+    spec:
+      containers:
+        - name: alert-monitor
+          # Placeholder image, will be replaced by our CI/CD pipeline
+          image: placeholder-repo/alert-monitor:latest
+          ports:
+            - containerPort: 8080 # The port our dashboard's web server listens on
+          envFrom:
+            - configMapRef:
+                name: alert-monitor-config # Load the Redis connection info

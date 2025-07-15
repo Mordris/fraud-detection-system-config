@@ -1,0 +1,25 @@
+# A Deployment tells Kubernetes how to run and scale our application.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-api
+spec:
+  replicas: 1 # Run a single instance (pod) of our application
+  selector:
+    matchLabels:
+      app: payment-api
+  template:
+    metadata:
+      labels: # Pods created by this deployment will get this label
+        app: payment-api
+    spec:
+      containers:
+        - name: payment-api
+          # IMPORTANT: This is a placeholder image name.
+          # We will build and push our real image later.
+          image: placeholder-repo/payment-api:latest
+          ports:
+            - containerPort: 8000 # The port our FastAPI app runs on
+          envFrom: # This tells the container to load all key-value pairs
+            - configMapRef: # from the ConfigMap we just defined
+                name: payment-api-config

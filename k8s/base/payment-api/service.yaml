@@ -1,0 +1,13 @@
+# A Service gives our Deployment a stable network address inside the cluster.
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment-api
+spec:
+  selector:
+    # This service will route traffic to any pod with the 'app: payment-api' label
+    app: payment-api
+  ports:
+    - protocol: TCP
+      port: 8000 # The port the service will be available on
+      targetPort: 8000 # The port on the pod to send traffic to

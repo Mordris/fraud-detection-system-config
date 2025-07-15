@@ -1,0 +1,9 @@
+# This ConfigMap holds the connection details for Redis.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alert-monitor-config
+data:
+  # The value is the DNS name of the Redis service created by the Helm chart.
+  REDIS_HOST: "redis-master.fraud-detection.svc.cluster.local"
+  REDIS_PORT: "6379"

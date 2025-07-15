@@ -1,0 +1,8 @@
+# This file tells Kustomize which manifests belong to the flink component.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - configmap.yaml
+  - jobmanager-deployment.yaml
+  - jobmanager-service.yaml
+  - taskmanager-deployment.yaml

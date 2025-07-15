@@ -1,0 +1,31 @@
+# This Deployment is specifically for the Flink JobManager (the master node).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flink-jobmanager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flink
+      component: jobmanager
+  template:
+    metadata:
+      labels:
+        app: flink
+        component: jobmanager
+    spec:
+      containers:
+        - name: flink-jobmanager
+          image: placeholder-repo/flink-app:latest
+          # The 'args' override the Dockerfile's CMD to start a jobmanager.
+          args: ["jobmanager"]
+          ports:
+            - containerPort: 8081 # Port for the Flink Web UI
+              name: webui
+          env: # Here we only load the specific FLINK_PROPERTIES key
+            - name: FLINK_PROPERTIES
+              valueFrom:
+                configMapKeyRef:
+                  name: flink-config
+                  key: FLINK_PROPERTIES
