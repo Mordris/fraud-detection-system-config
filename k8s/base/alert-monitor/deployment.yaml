@@ -1,3 +1,4 @@
+# k8s/base/alert-monitor/deployment.yaml
 # This Deployment defines how to run our alert-monitor dashboard.
 apiVersion: apps/v1
 kind: Deployment

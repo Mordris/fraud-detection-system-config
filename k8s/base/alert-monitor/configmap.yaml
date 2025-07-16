@@ -1,3 +1,4 @@
+# k8s/base/alert-monitor/configmap.yaml
 # This ConfigMap holds the connection details for Redis.
 apiVersion: v1
 kind: ConfigMap

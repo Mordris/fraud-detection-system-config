@@ -1,10 +1,10 @@
-# This Deployment is for the Flink TaskManagers (the worker nodes).
+# k8s/base/flink/taskmanager-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: flink-taskmanager
 spec:
-  replicas: 1 # We will start with one worker. We can easily scale this later.
+  replicas: 1
   selector:
     matchLabels:
       app: flink
@@ -18,11 +18,9 @@ spec:
       containers:
         - name: flink-taskmanager
           image: placeholder-repo/flink-app:latest
-          # This overrides the CMD to start a taskmanager instead.
           args: ["taskmanager"]
-          env:
-            - name: FLINK_PROPERTIES
-              valueFrom:
-                configMapKeyRef:
-                  name: flink-config
-                  key: FLINK_PROPERTIES
+          # This tells the TaskManager to load the FLINK_PROPERTIES
+          # from our corrected ConfigMap.
+          envFrom:
+            - configMapRef:
+                name: flink-config

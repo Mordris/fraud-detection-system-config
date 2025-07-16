@@ -1,4 +1,4 @@
-# This Deployment is specifically for the Flink JobManager (the master node).
+# k8s/base/flink/jobmanager-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -18,14 +18,21 @@ spec:
       containers:
         - name: flink-jobmanager
           image: placeholder-repo/flink-app:latest
-          # The 'args' override the Dockerfile's CMD to start a jobmanager.
           args: ["jobmanager"]
           ports:
-            - containerPort: 8081 # Port for the Flink Web UI
+            - containerPort: 8081
               name: webui
-          env: # Here we only load the specific FLINK_PROPERTIES key
-            - name: FLINK_PROPERTIES
+          env:
+            - name: POD_IP
               valueFrom:
-                configMapKeyRef:
-                  name: flink-config
-                  key: FLINK_PROPERTIES
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: FLINK_PROPERTIES
+              value: "jobmanager.rpc.address: flink-jobmanager\nrest.address: $(POD_IP)\n"
+          # --- ADD THIS SECTION ---
+          # This gives the JobManager process the KAFKA_BROKER and REDIS_HOST
+          # variables, which are needed by the Python script's coordinator.
+          envFrom:
+            - configMapRef:
+                name: flink-config
+          # --- END OF ADDED SECTION ---

@@ -1,4 +1,4 @@
-# This file tells Kustomize which manifests belong to the flink component.
+# k8s/base/flink/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
@@ -6,3 +6,4 @@ resources:
   - jobmanager-deployment.yaml
   - jobmanager-service.yaml
   - taskmanager-deployment.yaml
+  - job-submitter.yaml

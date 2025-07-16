@@ -1,13 +1,13 @@
-# This ConfigMap holds settings for both the Flink cluster and our Python job.
+# k8s/base/flink/configmap.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: flink-config
 data:
-  # This multi-line string will be loaded by Flink's cluster processes.
+  # This key is now needed by the TaskManager.
   FLINK_PROPERTIES: |
     jobmanager.rpc.address: flink-jobmanager
     taskmanager.numberOfTaskSlots: 2
-  # These will be read as environment variables by our fraud_detector.py script.
+  # These keys are still needed by the Python script.
   KAFKA_BROKER: "redpanda-0.redpanda.fraud-detection.svc.cluster.local:9093"
   REDIS_HOST: "redis-master.fraud-detection.svc.cluster.local"

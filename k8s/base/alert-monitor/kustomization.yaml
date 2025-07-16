@@ -1,3 +1,4 @@
+# k8s/base/alert-monitor/kustomization.yaml
 # This file tells Kustomize which manifests belong to the alert-monitor component.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization

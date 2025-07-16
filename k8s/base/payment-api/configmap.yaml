@@ -1,3 +1,4 @@
+# k8s/base/payment-api/configmap.yaml
 # A ConfigMap stores configuration data as key-value pairs.
 # Our application will read these as environment variables.
 apiVersion: v1

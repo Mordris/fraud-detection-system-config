@@ -11,5 +11,7 @@ spec:
   ports:
     - name: rpc # The port TaskManagers use to talk to the JobManager
       port: 6123
+    - name: blob # <-- ADD THIS SECTION
+      port: 6124 # <-- The Blob Server port
     - name: webui # The port for the Flink Dashboard
       port: 8081

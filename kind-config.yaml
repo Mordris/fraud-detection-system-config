@@ -1,3 +1,4 @@
+# k8s/base/kind-config.yaml
 # This file defines the configuration for our local Kubernetes cluster.
 # We are creating a multi-node cluster to better simulate a real environment.
 kind: Cluster

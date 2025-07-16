@@ -1,0 +1,30 @@
+# k8s/base/flink/job-submitter.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: flink-job-submitter
+spec:
+  # It's good practice to set a timeout for job submission
+  activeDeadlineSeconds: 120
+  template:
+    spec:
+      containers:
+        - name: flink-job-submitter
+          image: placeholder-repo/flink-app:latest
+          command: [
+              "/opt/flink/bin/flink",
+              "run",
+              "-d", # Run in detached mode
+              "-py",
+              "/opt/flink/usrlib/fraud_detector.py",
+              "-m",
+              "flink-jobmanager:8081",
+            ]
+          # --- ADD THIS SECTION ---
+          # This ensures the Python script reads the correct Kubernetes service
+          # names for Kafka and Redis when it is submitted to the cluster.
+          envFrom:
+            - configMapRef:
+                name: flink-config
+          # --- END OF ADDED SECTION ---
+      restartPolicy: OnFailure

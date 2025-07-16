@@ -1,3 +1,4 @@
+# k8s/base/alert-monitor/service.yaml
 # This Service gives the alert-monitor a stable network address.
 apiVersion: v1
 kind: Service

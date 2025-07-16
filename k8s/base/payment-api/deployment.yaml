@@ -1,3 +1,4 @@
+# k8s/base/payment-api/deployment.yaml
 # A Deployment tells Kubernetes how to run and scale our application.
 apiVersion: apps/v1
 kind: Deployment

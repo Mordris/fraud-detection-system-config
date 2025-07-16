@@ -1,3 +1,4 @@
+# k8s/base/payment-api/service.yaml
 # A Service gives our Deployment a stable network address inside the cluster.
 apiVersion: v1
 kind: Service
