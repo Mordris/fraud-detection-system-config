@@ -3,17 +3,18 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: flink-job-submitter
-  # This is correct and necessary. It tells Argo CD to replace the job on change.
+  # --- REPLACE THE OLD ANNOTATION WITH THESE TWO ---
   annotations:
-    argocd.argoproj.io/sync-options: Replace=true
+    # This designates the Job as a task to run during the sync phase.
+    argocd.argoproj.io/hook: Sync
+    # This tells Argo CD to automatically delete this Job after it succeeds.
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+  # ----------------------------------------------------
 spec:
   # It's good practice to set a timeout for job submission
   activeDeadlineSeconds: 120
-  # The 'selector' block has been REMOVED.
+  # We no longer need the selector or labels, Kubernetes will handle it for this transient job.
   template:
-    metadata:
-      # The 'labels' block has been REMOVED.
-      # Kubernetes will add its own required labels here automatically.
     spec:
       containers:
         - name: flink-job-submitter
@@ -28,7 +29,6 @@ spec:
               "-m",
               "flink-jobmanager:8081",
             ]
-          # This is correct and necessary.
           envFrom:
             - configMapRef:
                 name: flink-config
