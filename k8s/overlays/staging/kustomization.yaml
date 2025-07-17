@@ -1,25 +1,29 @@
-# k8s/overlays/staging/kustomization.yaml
+# This Kustomization file defines the 'staging' environment.
+# It takes the generic 'base' configuration and applies specific
+# settings for staging, such as image tags and the target namespace.
 
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-# Use the same base manifests as development
-bases:
+# This line tells Kustomize to use everything from our 'base' directory
+# as a foundation for this overlay.
+resources:
   - ../../base
 
-# This is the crucial instruction that tells Kustomize to apply the
-# 'fraud-detection-staging' namespace to ALL resources it generates.
+# This ensures all resources deployed via this overlay will be created
+# in the 'fraud-detection-staging' namespace, isolating it from development.
 namespace: fraud-detection-staging
 
-# The image tags in this file will be updated by the promotion PR process.
-# For now, they can be the same as development.
+# The 'images' block finds container images by their original 'name'
+# in the base manifests and replaces them with the real repository
+# path ('newName') and the specific version ('newTag') for this environment.
 images:
   - name: placeholder-repo/payment-api
     newName: ghcr.io/mordris/payment-api
-    newTag: 54d2be72d3d2326ca5ac7771c5f686db52 # Example tag
+    newTag: aa716b1f927a88f4d45dbfa175ac71f2d35242ca # This tag is from the last merged PR to main
   - name: placeholder-repo/alert-monitor
     newName: ghcr.io/mordris/alert-monitor
-    newTag: aaa37eaa241b96e4e57f65f2f9ce3500f977ed17 # Example tag
+    newTag: aaa37eaa241b06e4e57f05f2f9ce3500f977ed17 # This tag is from the last merged PR to main
   - name: placeholder-repo/flink-app
     newName: ghcr.io/mordris/flink-app
-    newTag: 4bd4277ed1633dc4ddc909b168a52c14ce774f12 # Example tag
+    newTag: fe9f26eed4320724a1e1013d6581095ef89421b2 # This tag is from the last merged PR to main
