@@ -19,14 +19,16 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      # --- ADD THIS LINE ---
+      # This tells Argo CD to use the modern server-side apply strategy,
+      # which is better at handling mutating controllers.
+      - ServerSideApply=true
 
-  # --- ADD THIS ENTIRE BLOCK ---
-  # This tells Argo CD to ignore the labels and selector that are
-  # automatically added by the Kubernetes Job controller.
+  # --- KEEP THIS BLOCK ---
+  # This still provides a clear declaration of intent to ignore these fields.
   ignoreDifferences:
     - group: batch
       kind: Job
       jsonPointers:
         - /spec/selector
         - /spec/template/metadata/labels
-  # ---------------------------
