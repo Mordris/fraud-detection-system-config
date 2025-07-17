@@ -26,7 +26,7 @@ images:
   newTag: aa716b1f927a88f4d45dbfa175ac71f2d35242ca
 - name: placeholder-repo/flink-app
   newName: ghcr.io/mordris/flink-app
-  newTag: v0.0.2
+  newTag: 4bd4277ed1633dc4ddc909b168a52c14ce774f12
 - name: placeholder-repo/payment-api
   newName: ghcr.io/mordris/payment-api
   newTag: aa716b1f927a88f4d45dbfa175ac71f2d35242ca
