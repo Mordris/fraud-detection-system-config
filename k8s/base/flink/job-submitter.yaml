@@ -3,10 +3,9 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: flink-job-submitter
-  # --- ADD THIS ANNOTATION ---
+  # This tells Argo CD to delete and re-create the Job
   annotations:
     argocd.argoproj.io/sync-options: Replace=true
-  # ---------------------------
 spec:
   activeDeadlineSeconds: 120
   template:
@@ -24,4 +23,10 @@ spec:
               "-m",
               "flink-jobmanager:8081",
             ]
+          # --- THIS SECTION MUST BE PRESENT ---
+          # It provides the KAFKA_BROKER and REDIS_HOST variables to the Python script.
+          envFrom:
+            - configMapRef:
+                name: flink-config
+          # ------------------------------------
       restartPolicy: OnFailure
