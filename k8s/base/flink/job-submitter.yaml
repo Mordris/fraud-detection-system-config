@@ -4,18 +4,18 @@ kind: Job
 metadata:
   name: flink-job-submitter
   annotations:
+    # Designates the Job as a task to run during the sync phase.
     argocd.argoproj.io/hook: Sync
-    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+    # Before creating this hook, delete any previous instance of it.
+    # This is more robust than waiting for success.
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
 spec:
-  # --- CHANGE THIS VALUE ---
-  # Increase the timeout to 5 minutes (300 seconds) to give the Flink
-  # cluster plenty of time to start before the submission times out.
+  # Increase the timeout to 5 minutes (300 seconds) to ensure the
+  # Flink cluster has time to start up.
   activeDeadlineSeconds: 300
 
-  # --- ADD THIS LINE ---
-  # If the pod fails (e.g., can't connect), retry up to 2 times.
+  # If the pod fails, retry up to 2 times.
   backoffLimit: 2
-  # ---------------------
   template:
     spec:
       containers:
