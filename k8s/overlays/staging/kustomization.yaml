@@ -1,34 +1,25 @@
-# k8s/overlays/development/kustomization.yaml
-# This Kustomization file defines the 'development' environment.
-# It takes the generic 'base' configuration and applies specific
-# settings for development, such as image tags and the namespace.
+# k8s/overlays/staging/kustomization.yaml
 
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-# This line tells Kustomize to use everything from our 'base' directory
-# as a foundation for this overlay.
+# Use the same base manifests as development
+bases:
+  - ../../base
 
-# This ensures all resources deployed via this overlay will be created
-# in the 'fraud-detection' namespace, keeping our cluster organized.
-namespace: fraud-detection
+# This is the crucial instruction that tells Kustomize to apply the
+# 'fraud-detection-staging' namespace to ALL resources it generates.
+namespace: fraud-detection-staging
 
-# The 'images' block is the core of an overlay. It finds container images
-# by their 'name' in the base manifests (e.g., 'placeholder-repo/payment-api')
-# and replaces them with a real repository path ('newName') and a specific version ('newTag').
-# This allows us to update a single service without rebuilding everything.
+# The image tags in this file will be updated by the promotion PR process.
+# For now, they can be the same as development.
 images:
-- name: ghcr.io/mordris/payment-api
-  newName: ghcr.io/mordris/payment-api
-  newTag: 54d2be72d3d2326ca5ac7771c5f686db5298e7da
-- name: placeholder-repo/alert-monitor
-  newName: ghcr.io/mordris/alert-monitor
-  newTag: aaa37eaa241b06e4e57f05f2f9ce3500f977ed17
-- name: placeholder-repo/flink-app
-  newName: ghcr.io/mordris/flink-app
-  newTag: fe9f26eed4320724a1e1013d6581095ef89421b2
-- name: placeholder-repo/payment-api
-  newName: ghcr.io/mordris/payment-api
-  newTag: aa716b1f927a88f4d45dbfa175ac71f2d35242ca
-resources:
-- ../../base
+  - name: placeholder-repo/payment-api
+    newName: ghcr.io/mordris/payment-api
+    newTag: 54d2be72d3d2326ca5ac7771c5f686db52 # Example tag
+  - name: placeholder-repo/alert-monitor
+    newName: ghcr.io/mordris/alert-monitor
+    newTag: aaa37eaa241b96e4e57f65f2f9ce3500f977ed17 # Example tag
+  - name: placeholder-repo/flink-app
+    newName: ghcr.io/mordris/flink-app
+    newTag: 4bd4277ed1633dc4ddc909b168a52c14ce774f12 # Example tag
