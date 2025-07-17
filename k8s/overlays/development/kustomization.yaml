@@ -23,7 +23,7 @@ images:
   newTag: 54d2be72d3d2326ca5ac7771c5f686db5298e7da
 - name: placeholder-repo/alert-monitor
   newName: ghcr.io/mordris/alert-monitor
-  newTag: aa716b1f927a88f4d45dbfa175ac71f2d35242ca
+  newTag: aaa37eaa241b06e4e57f05f2f9ce3500f977ed17
 - name: placeholder-repo/flink-app
   newName: ghcr.io/mordris/flink-app
   newTag: 4bd4277ed1633dc4ddc909b168a52c14ce774f12
