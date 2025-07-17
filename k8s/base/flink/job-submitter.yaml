@@ -3,17 +3,19 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: flink-job-submitter
-  # --- REPLACE THE OLD ANNOTATION WITH THESE TWO ---
   annotations:
-    # This designates the Job as a task to run during the sync phase.
     argocd.argoproj.io/hook: Sync
-    # This tells Argo CD to automatically delete this Job after it succeeds.
     argocd.argoproj.io/hook-delete-policy: HookSucceeded
-  # ----------------------------------------------------
 spec:
-  # It's good practice to set a timeout for job submission
-  activeDeadlineSeconds: 120
-  # We no longer need the selector or labels, Kubernetes will handle it for this transient job.
+  # --- CHANGE THIS VALUE ---
+  # Increase the timeout to 5 minutes (300 seconds) to give the Flink
+  # cluster plenty of time to start before the submission times out.
+  activeDeadlineSeconds: 300
+
+  # --- ADD THIS LINE ---
+  # If the pod fails (e.g., can't connect), retry up to 2 times.
+  backoffLimit: 2
+  # ---------------------
   template:
     spec:
       containers:
