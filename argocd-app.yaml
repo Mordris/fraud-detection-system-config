@@ -1,0 +1,29 @@
+# argocd-app.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: fraud-detection-system
+  namespace: argocd # This application resource must live in the argocd namespace
+spec:
+  project: default
+  source:
+    # This is the URL to YOUR configuration repository
+    repoURL: https://github.com/Mordris/fraud-detection-system-config.git
+    # Point to the branch you are using (e.g., main or master)
+    targetRevision: main
+    # This is the path inside your repo where the manifests are
+    path: k8s/overlays/development
+  destination:
+    # Deploy to the same cluster where Argo CD is running
+    server: https://kubernetes.default.svc
+    # Deploy into the namespace for your application
+    namespace: fraud-detection
+  syncPolicy:
+    automated:
+      # Automatically delete resources that are removed from the Git repo
+      prune: true
+      # Automatically apply changes detected in the Git repo
+      selfHeal: true
+    # Use Kustomize to build the final manifests
+    syncOptions:
+      - CreateNamespace=true

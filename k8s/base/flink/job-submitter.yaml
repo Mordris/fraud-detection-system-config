@@ -3,6 +3,12 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: flink-job-submitter
+  # --- ADD THIS ANNOTATION ---
+  # This tells Argo CD to delete the old Job and create a new one
+  # instead of trying to patch the immutable template fields.
+  annotations:
+    argocd.argoproj.io/sync-options: Replace=true
+  # ---------------------------
 spec:
   # It's good practice to set a timeout for job submission
   activeDeadlineSeconds: 120
@@ -20,11 +26,9 @@ spec:
               "-m",
               "flink-jobmanager:8081",
             ]
-          # --- ADD THIS SECTION ---
           # This ensures the Python script reads the correct Kubernetes service
           # names for Kafka and Redis when it is submitted to the cluster.
           envFrom:
             - configMapRef:
                 name: flink-config
-          # --- END OF ADDED SECTION ---
       restartPolicy: OnFailure
