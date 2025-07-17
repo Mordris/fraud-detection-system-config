@@ -29,6 +29,6 @@ images:
   newTag: v0.0.2
 - name: placeholder-repo/payment-api
   newName: ghcr.io/mordris/payment-api
-  newTag: v0.0.3
+  newTag: aa716b1f927a88f4d45dbfa175ac71f2d35242ca
 resources:
 - ../../base
