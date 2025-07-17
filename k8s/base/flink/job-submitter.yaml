@@ -3,12 +3,25 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: flink-job-submitter
-  # This tells Argo CD to delete and re-create the Job
   annotations:
     argocd.argoproj.io/sync-options: Replace=true
 spec:
+  # It's good practice to set a timeout for job submission
   activeDeadlineSeconds: 120
+  # --- ADD THIS SELECTOR ---
+  # This tells the Job how to find the pods it creates.
+  selector:
+    matchLabels:
+      app: flink-job-submitter
+  # -------------------------
   template:
+    metadata:
+      # --- ADD THESE LABELS ---
+      # This applies the required labels to the pods created by this Job.
+      # The labels must match the spec.selector.matchLabels above.
+      labels:
+        app: flink-job-submitter
+      # ------------------------
     spec:
       containers:
         - name: flink-job-submitter
@@ -23,10 +36,7 @@ spec:
               "-m",
               "flink-jobmanager:8081",
             ]
-          # --- THIS SECTION MUST BE PRESENT ---
-          # It provides the KAFKA_BROKER and REDIS_HOST variables to the Python script.
           envFrom:
             - configMapRef:
                 name: flink-config
-          # ------------------------------------
       restartPolicy: OnFailure
