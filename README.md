@@ -1,87 +1,77 @@
 # Fraud Detection System - Kubernetes & GitOps Configuration
 
-This repository contains all the Kubernetes manifests required to deploy the [Real-Time Fraud Detection System](https://github.com/Mordris/fraud-detection-system). It acts as the **single source of truth** for the application's desired state in the Kubernetes cluster, forming the core of a modern **GitOps** workflow managed by **Argo CD**.
+This repository contains all Kubernetes manifests required to deploy the [Real-Time Fraud Detection System](https://github.com/Mordris/fraud-detection-system). It acts as the **single source of truth** for the application's desired state across multiple environments, forming the core of a modern **GitOps** workflow managed by **Argo CD**.
 
-While the main application repository holds the source code and CI pipelines, this repository defines the infrastructure, configuration, and deployment strategy.
+The system is designed with a multi-environment promotion strategy, ensuring that changes are automatically tested, scanned, and deployed to a `development` environment before being manually promoted to `staging` via a controlled Pull Request process.
 
 ---
 
-### The GitOps Flow
+### The CI/CD and Promotion Workflow
 
-The entire CI/CD process is automated. A `git push` to the application repository triggers a chain reaction that results in a new version being safely deployed to Kubernetes, with this repository acting as the crucial link between CI and CD.
+This architecture represents a complete, automated software delivery lifecycle, from a developer's code commit to a controlled release in a staging environment.
 
-![CI/CD Architecture](images/ci_cd_architecture.png)
+![CI/CD GitOps Pipeline Architecture](images/final_ci_cd_architecture.png)
+
+**The process unfolds in two main stages:**
+
+#### Stage 1: Continuous Delivery to Development
+
+1.  **Code Push:** A developer pushes a code change to a microservice in the `main` branch of the `fraud-detection-system` repository.
+2.  **CI Pipeline Trigger:** A dedicated GitHub Actions workflow automatically starts.
+    - **Quality Gates:** The code is first validated with **automated tests (Pytest)** and **linting (Ruff)**.
+    - **Build:** If quality checks pass, a new Docker image is built.
+    - **Security Gate:** The new image is scanned for `HIGH` and `CRITICAL` vulnerabilities using **Trivy**.
+3.  **Push to Registry:** If the security scan passes, the image is pushed to the GitHub Container Registry (GHCR) with a unique Git SHA tag.
+4.  **Update `develop` Branch:** The CI pipeline then automatically checks out the **`develop` branch** of this repository (`fraud-detection-system-config`) and updates the corresponding image tag in the `development` overlay.
+5.  **Automated Sync to Dev:** Argo CD, tracking the `develop` branch, detects the change and automatically syncs it, deploying the new version to the `fraud-detection` (development) namespace in Kubernetes.
+
+#### Stage 2: Controlled Promotion to Staging
+
+6.  **Create Pull Request:** After verifying the changes in the development environment, a team member creates a **Pull Request** in this repository to merge the `develop` branch into the `main` branch. This PR serves as a clear, auditable record of what is being promoted.
+7.  **Manual Approval:** A senior developer or team lead reviews the Pull Request, ensuring the changes are ready for a more stable environment, and then approves and **merges** it.
+8.  **Automated Sync to Staging:** Argo CD, tracking the `main` branch for the staging environment, detects the update and automatically syncs the changes, deploying the promoted versions to the isolated `fraud-detection-staging` namespace.
+
+---
 
 ## Technology Stack
 
-This repository specifically manages the deployment and configuration using the following tools:
-
-- **Kubernetes:** The container orchestration platform where the application runs.
-- **Kustomize:** A template-free way to customize application configuration. It is used here to manage the differences between environments (e.g., development vs. production) by patching a common `base` set of manifests.
-- **Argo CD:** The declarative, GitOps continuous delivery tool that synchronizes the state of the Kubernetes cluster with the manifests in this repository.
-- **Helm:** Used to manage the deployment of third-party stateful services like Redpanda and Redis (though the charts themselves are not stored here).
+- **Orchestration:** Kubernetes (kind)
+- **CI/CD & GitOps:** GitHub Actions, Argo CD
+- **Configuration Management:** Kustomize
+- **Containerization:** Docker, GHCR
+- **Application Stack:** Python (FastAPI), Apache Flink, Redpanda, Redis
+- **Quality & Security:** Pytest, Ruff, Trivy
 
 ---
 
 ## Repository Structure
 
-The manifests are organized using the recommended Kustomize `base` and `overlays` structure.
+The manifests are organized using a `base` and `overlays` structure to manage multiple environments cleanly.
 
 ```
 k8s/
 ├── base/
-│   ├── alert-monitor/  # Base manifests for the Alert Monitor service
-│   ├── flink/          # Base manifests for the Flink cluster & Job submitter
-│   └── payment-api/    # Base manifests for the Payment API service
+│   ├── alert-monitor/
+│   ├── flink/
+│   └── payment-api/
 └── overlays/
-    └── development/    # Overlays for the 'development' environment
+    ├── development/  # Tracks the 'develop' branch
+    └── staging/      # Tracks the 'main' branch
 ```
 
-- **`k8s/base/`**: Contains the environment-agnostic, foundational Kubernetes manifests for each microservice. The `Deployment` files in the base use a generic `placeholder-repo/` image name.
-- **`k8s/overlays/development/`**: Contains a `kustomization.yaml` file that patches the `base` manifests with details specific to the development environment. This is where the CI pipeline automatically updates the container image tags.
+- **`k8s/base/`**: Contains environment-agnostic Kubernetes manifests using placeholder image names.
+- **`k8s/overlays/development/`**: Patches the `base` to deploy to the `fraud-detection` namespace. Image tags here are updated automatically by the CI pipeline.
+- **`k8s/overlays/staging/`**: Patches the `base` to deploy to the `fraud-detection-staging` namespace. Image tags here are updated via the manual PR promotion process.
 
 ---
 
-## The Automated Workflow in Detail
+## Argo CD Application Definitions
 
-1.  **Code Push:** A developer pushes a code change to a specific microservice directory (e.g., `payment_api/`) in the `fraud-detection-system` repository.
-2.  **CI Pipeline Trigger:** A dedicated GitHub Actions workflow, configured with path-based triggers, starts execution.
-3.  **Build and Push:** The CI job builds a new Docker image, tags it with the unique Git commit SHA, and pushes it to the GitHub Container Registry (GHCR).
-4.  **Checkout Config Repo:** A subsequent job in the same workflow checks out this repository (`fraud-detection-system-config`).
-5.  **Update Manifest:** The job uses the `kustomize edit set image` command to update the image tag for the specific microservice in the `k8s/overlays/development/kustomization.yaml` file.
-6.  **Commit and Push:** The workflow commits and pushes this change back to this repository, creating a fully audited record of the version change.
-7.  **Argo CD Sync:** Argo CD, which is constantly monitoring this repository, detects the new commit.
-8.  **Kubernetes Deployment:** Argo CD "pulls" the change and applies it to the cluster, triggering a safe, rolling update of the correct microservice with the new container image. The `flink-job-submitter` is handled as a transient Argo CD Hook to prevent sync errors.
+Two Argo CD `Application` resources manage the two environments.
 
----
+**Development App (`argocd-app.yaml`):**
 
-## Manual Deployment
-
-While the process is fully automated, the application can be deployed manually from this repository using `kubectl` and `kustomize`.
-
-**Prerequisites:**
-
-- A running Kubernetes cluster (e.g., `kind`, `minikube`).
-- `kubectl` configured to point to the cluster.
-- [Kustomize](https://kustomize.io/) installed.
-- Stateful services (Redpanda, Redis) and Argo CD installed in the cluster.
-
-**Deployment Command:**
-
-```bash
-# Navigate to the root of this repository
-kubectl apply -k k8s/overlays/development
-```
-
----
-
-## Argo CD Bootstrap
-
-The connection between Argo CD and this repository is established by applying an `Application` manifest to the cluster.
-
-**`argocd-app.yaml`:**
-
-````yaml
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -91,22 +81,46 @@ spec:
   project: default
   source:
     repoURL: https://github.com/Mordris/fraud-detection-system-config.git
-    targetRevision: main
+    targetRevision: develop # <-- Tracks the develop branch
     path: k8s/overlays/development
   destination:
     server: https://kubernetes.default.svc
     namespace: fraud-detection
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
+    automated: { prune: true, selfHeal: true }
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
   ignoreDifferences:
     - group: batch
       kind: Job
-      jsonPointers:
-        - /spec/selector
-        - /spec/template/metadata/labels```
-````
+      jsonPointers: ["/spec/selector", "/spec/template/metadata/labels"]
+```
+
+**Staging App (`argocd-staging-app.yaml`):**
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: fraud-detection-system-staging
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Mordris/fraud-detection-system-config.git
+    targetRevision: main # <-- Tracks the main branch
+    path: k8s/overlays/staging
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: fraud-detection-staging
+  syncPolicy:
+    automated: { prune: true, selfHeal: true }
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+  ignoreDifferences:
+    - group: batch
+      kind: Job
+      jsonPointers: ["/spec/selector", "/spec/template/metadata/labels"]
+```
