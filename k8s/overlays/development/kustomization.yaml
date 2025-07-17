@@ -8,8 +8,6 @@ kind: Kustomization
 
 # This line tells Kustomize to use everything from our 'base' directory
 # as a foundation for this overlay.
-bases:
-  - ../../base
 
 # This ensures all resources deployed via this overlay will be created
 # in the 'fraud-detection' namespace, keeping our cluster organized.
@@ -20,12 +18,17 @@ namespace: fraud-detection
 # and replaces them with a real repository path ('newName') and a specific version ('newTag').
 # This allows us to update a single service without rebuilding everything.
 images:
-  - name: placeholder-repo/payment-api
-    newName: ghcr.io/mordris/payment-api
-    newTag: v0.0.3
-  - name: placeholder-repo/alert-monitor
-    newName: ghcr.io/mordris/alert-monitor
-    newTag: v0.0.1
-  - name: placeholder-repo/flink-app
-    newName: ghcr.io/mordris/flink-app
-    newTag: v0.0.2
+- name: ghcr.io/mordris/payment-api
+  newName: ghcr.io/mordris/payment-api
+  newTag: 54d2be72d3d2326ca5ac7771c5f686db5298e7da
+- name: placeholder-repo/alert-monitor
+  newName: ghcr.io/mordris/alert-monitor
+  newTag: aa716b1f927a88f4d45dbfa175ac71f2d35242ca
+- name: placeholder-repo/flink-app
+  newName: ghcr.io/mordris/flink-app
+  newTag: 4bd4277ed1633dc4ddc909b168a52c14ce774f12
+- name: placeholder-repo/payment-api
+  newName: ghcr.io/mordris/payment-api
+  newTag: aa716b1f927a88f4d45dbfa175ac71f2d35242ca
+resources:
+- ../../base
