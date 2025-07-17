@@ -2,17 +2,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: fraud-detection-system
+  name: fraud-detection-system-staging
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: https://github.com/Mordris/fraud-detection-system-config.git
     targetRevision: develop
-    path: k8s/overlays/development
+    path: k8s/overlays/staging
   destination:
     server: https://kubernetes.default.svc
-    namespace: fraud-detection
+    namespace: fraud-detection-staging
   syncPolicy:
     automated:
       prune: true
