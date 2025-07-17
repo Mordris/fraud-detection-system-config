@@ -26,7 +26,7 @@ images:
   newTag: latest
 - name: placeholder-repo/flink-app
   newName: ghcr.io/mordris/flink-app
-  newTag: ff4f361ea24951ce19a0833715d72bd4eed421a9
+  newTag: latest
 - name: placeholder-repo/payment-api
   newName: ghcr.io/mordris/payment-api
   newTag: latest
