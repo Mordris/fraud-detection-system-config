@@ -1,0 +1,34 @@
+# k8s/overlays/development/kustomization.yaml
+# This Kustomization file defines the 'development' environment.
+# It takes the generic 'base' configuration and applies specific
+# settings for development, such as image tags and the namespace.
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# This line tells Kustomize to use everything from our 'base' directory
+# as a foundation for this overlay.
+
+# This ensures all resources deployed via this overlay will be created
+# in the 'fraud-detection' namespace, keeping our cluster organized.
+namespace: fraud-detection
+
+# The 'images' block is the core of an overlay. It finds container images
+# by their 'name' in the base manifests (e.g., 'placeholder-repo/payment-api')
+# and replaces them with a real repository path ('newName') and a specific version ('newTag').
+# This allows us to update a single service without rebuilding everything.
+images:
+- name: ghcr.io/mordris/payment-api
+  newName: ghcr.io/mordris/payment-api
+  newTag: 54d2be72d3d2326ca5ac7771c5f686db5298e7da
+- name: placeholder-repo/alert-monitor
+  newName: ghcr.io/mordris/alert-monitor
+  newTag: aaa37eaa241b06e4e57f05f2f9ce3500f977ed17
+- name: placeholder-repo/flink-app
+  newName: ghcr.io/mordris/flink-app
+  newTag: fe9f26eed4320724a1e1013d6581095ef89421b2
+- name: placeholder-repo/payment-api
+  newName: ghcr.io/mordris/payment-api
+  newTag: aa716b1f927a88f4d45dbfa175ac71f2d35242ca
+resources:
+- ../../base
